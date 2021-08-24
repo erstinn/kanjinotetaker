@@ -1,7 +1,8 @@
 from pathlib import Path
-import shelve
+import csv
 import pprint
 import os
+
 
 # # import os
 # # full_path = os.path.realpath(__file__)
@@ -32,27 +33,39 @@ import os
 
 
 class KanjiNoteTaker:
-    kanji_dictionary = {
-        'Tag': [], 'Kanji': [], 'Meaning': []
+    kanji_dictionary = {  # automatically static; I think
+        'word': {'reading': '', 'tag': '', 'type': '', 'meaning': '', 'proficiency': ''}
     }
 
     def __int__(self):
         # read from a text file, if empty, break from reading the text
-        if os.path.isfile('kanji_shelf'): # check if file exists
-            kanji_dictionary = shelve.open('kanji_shelf')
-        else:
-            kanji_shelf = shelve.open('kanji_shelf')
-            kanji_shelf['dictionary'] =
+        if os.path.isfile('kanji.csv'):  # TODO check if it is empty
+            kanjicsv = open('kanji.csv')
+            kanji_reader = csv.DictReader(kanjicsv, ['word', 'reading', 'tag', 'type', 'meaning', 'proficiency'])
 
-        kanji_shelf['kanjilist'] =
+            # put csv contents into the dictionary where the unique key of the outer dictionary
+            # is the kanji in the csv
+            for row in kanji_reader:
+                self.kanji_dictionary[row['word']]['reading'] = row['reading']
+                self.kanji_dictionary[row['word']]['tag'] = row['tag']
+                self.kanji_dictionary[row['word']]['type'] = row['type']
+                self.kanji_dictionary[row['word']]['meaning'] = row['meaning']
+                self.kanji_dictionary[row['word']]['proficiency'] = row['proficiency']
 
+        else:  # i dont need else in __init__
+            # TODO put it somewhere, maybe the destructor; REMOVE ELSE
+            kanjicsv = open('kanji.csv', 'w')
+            write_kanji = csv.DictWriter(kanjicsv,
+                                         fieldnames=['word', 'reading', 'tag', 'type', 'meaning', 'proficiency'])
+            write_kanji.writeheader()
+            # TODO writerow() for everything inside the dict.
 
     def take_input(self):
         error_input = 1
 
         while error_input == 1:
             print("[C]ommon/[U]ncommon/[n1]/[n2]/[n3]/[n4]/[n5] (ex:cn1 or UN5)")
-            print("\nInput separated by a '-' ex: UN4 - 漢字(かんじ) - MEANING")
+            print("\nInput separated by a '-' ex: UN4 - noun - 漢字(かんじ) - MEANING")
             print("\n[INPUT]: ")
             kanji_input = input().lower()
             kanji = [x.strip() for x in kanji_input.split('-')]
@@ -62,7 +75,7 @@ class KanjiNoteTaker:
                 continue
             else:
                 error_input = 0
-                kanji_dict(kanji[0], kanji[1], kanji[2])
+                self.kanji_dict(kanji[0], kanji[1], kanji[2])
 
     def tag_options(self, tag):
         # how to even convert it to something efficient lol;changesomeday perhaps mayev
@@ -88,23 +101,16 @@ class KanjiNoteTaker:
             else:
                 print("Wrong input, try again")
                 tag = input().lower()
-                tag_options(tag)
+                self.tag_options(tag)
                 break
 
         return final_tag
 
     def kanji_dict(self, tag, kanji, meaning):
-        get_tag = self.tag_options(self, tag)
-
-
-
-
+        get_tag = self.tag_options(tag)
 
 # verbose; list all of the data; efficiency later
 # can/should only be used when needed: debugging; checking, etc.
 # def listAll():
 #     for i in kanji.items():
 #         print(i)
-
-if __name__ == '__main__':
-    take_input()
